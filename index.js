@@ -176,15 +176,13 @@ const options2 = {
 		}
 	},
 	apis: ['*.js'],
-	schemas: [
-		{
-			name: 'UserCreateModel2',
-			schema: UserCreateModel2
-		}
-	] // or any other way.
+	schemas: [{
+		name: 'UserCreateModel2',
+		schema: UserCreateModel2
+	}] // or any other way.
 };
 
-const openapiSpecification2 = swaggerJsdoc(options);
+const openapiSpecification2 = swaggerJsdoc(options2);
 
 // and use this Schema on request Body $ref
 
@@ -207,3 +205,65 @@ const openapiSpecification2 = swaggerJsdoc(options);
 app.post('/user', (req, res, next) => {});
 
 // I think, if we can do so, we no longer need to write the model twice. (annotation and JOI)
+
+// Actually we can already do that, using definition on option
+
+// JOI validation object for UserLoginDTO
+const UserLoginDTO = Joi.object({
+	phoneNumber: Joi.string().length(10).regex(/^\d+$/).required().messages({
+		'string.pattern.base': `"phoneNumber" should contains numbers only`
+	}),
+	password: Joi.string().min(7).max(50).required()
+});
+
+// now let's use joi-to-swagger
+const j2sUserLoginDTO = j2s(UserLoginDTO);
+
+// Now with the help of joi-to-swagger we have this Schema,
+const UserLoginDTOSchema = j2sUserLoginDTO.swagger;
+
+
+const options3 = {
+	definition: {
+		openapi: '3.0.0',
+		info: {
+			title: 'Sample API',
+			description: 'Sample Project for feature request.',
+			version: '1.0.0'
+		},
+		components: {
+			schemas: {
+				UserCreateModel2,
+				UserLoginDTO: UserLoginDTOSchema
+			}
+		}
+	},
+	apis: ['*.js']
+};
+
+const openapiSpecification3 = swaggerJsdoc(options3);
+
+app.use('/docs3', swaggerUi.serve, swaggerUi.setup(openapiSpecification3));
+
+
+// now we can use this here.
+
+/**
+ * @openapi
+ * /login:
+ *  post:
+ *      tags:
+ *      - "User"
+ *      description: login a user
+ *      requestBody:
+ *          content:
+ *              'application/json':
+ *                  schema:
+ *                      $ref: "#/components/schemas/UserLoginDTO"
+ *      responses:
+ *          200:
+ *              description: returns a token
+ */
+app.post('/login', (req, res, next) => {
+	// stuffs
+})

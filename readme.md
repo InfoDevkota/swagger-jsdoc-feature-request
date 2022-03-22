@@ -38,3 +38,34 @@ Can be a tiny repo or prints, whatever you can do to help us.
 ```
 
 Please look into index.js
+
+## Looks like we can already do that
+
+Once [EdisonSL](https://github.com/EdisonSL) also shows some interest thorugh this [comment](https://github.com/Surnet/swagger-jsdoc/issues/311#issuecomment-1073682207) on that feature, I think I should attempt to implement this. 
+
+Then I started lookin on to the code. On `CONCEPTS.md`, it was clearly mentioned that definition object maps to OpenAPI object.
+
+Here is the option. 
+```js
+const options3 = {
+	definition: {
+		openapi: '3.0.0',
+		info: {
+			title: 'Sample API',
+			description: 'Sample Project for feature request.',
+			version: '1.0.0'
+		},
+		components: {
+			schemas: {
+				UserCreateModel2,
+				UserLoginDTO: UserLoginDTOSchema
+			}
+		}
+	},
+	apis: ['*.js']
+};
+```
+
+Now we can use `UserCreateModel2` and `UserCreateModel2` on ref.
+
+
